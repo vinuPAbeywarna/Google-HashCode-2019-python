@@ -30,9 +30,8 @@ def main_run():
         score = 0
         random.shuffle(photos)
         slides = Algorithm.generateSlideList(photos)
-        slideshow = Algorithm.generateSlideshow(slides, verbose=True)
+        slideshow, score = Algorithm.generateSlideshow(slides, verbose=True)
         del slides
-        score = Algorithm.calculateScore(slideshow)
         if (score > best_score):
             best_score = score
             print("\nFound solution with score {}.".format(score))

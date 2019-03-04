@@ -52,10 +52,9 @@ def main_run():
     p.stop("SLIDES CREATED")
     print("\nGENERATING SLIDESHOW...")
     p.start()
-    slideshow = Algorithm.generateSlideshow(slides, verbose=True)
+    slideshow, score = Algorithm.generateSlideshow(slides, verbose=True)
     del slides
     p.stop("SLIDESHOW GENERATED")
-    score = Algorithm.calculateScore(slideshow)
     print("\nFound solution with score {}.".format(score))
     dump_allowed = input("Do you want to write the output? [y/n] -> ")
     if (dump_allowed in ["y", "Y", "s", "S", "yes", "YES", "Yes"]):
