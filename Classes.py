@@ -29,7 +29,8 @@ class Photo:
         param = line.split(" ")
         self.id = id
         self.isHorizontal = True if param[0] == "H" else False
-        self.tags = param[2::]
+        tags_unstripped = param[2::]
+        self.tags = [x.strip() for x in tags_unstripped]
 
 
 class Slide:
