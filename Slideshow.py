@@ -1,7 +1,8 @@
 from Classes import Profiler
 import Algorithm
 import random
-# import pickle
+import sys
+import os
 
 inputFileNames = {
     "a": "a_example",
@@ -14,14 +15,41 @@ inputFileNames = {
 
 def main_run():
 
+    arguments = [x.lower() for x in sys.argv[1::]]
+
+    if ("help" in arguments):
+        print_help()
+        exit()
+
+    if ("improve" in arguments):
+        improve_run()
+        exit()
+
+    if ("analyze" in arguments):
+        analyze_run()
+        exit()
+
     p = Profiler()
     tp = Profiler()
+
+    verbose = True if "verbose" in arguments else False
+    test = True if "test" in arguments else False
+    iterative = True if "iterative" in arguments else test
+    auto = True if "auto" in arguments else test
+
+    if not verbose:
+        p.disable()
+        tp.disable()
+
     tp.start()
+    if verbose:
+        print("\nSTARTED...")
 
-    print("\nSTARTED...")
+    folder = input("\nOutput folder -> ") if not test else "E:/out"
+    if not os.path.exists(folder):
+        os.makedirs(folder)
 
-    # acquiring the input
-    letter = input("\nType input file letter -> ")
+    letter = input("\nType input file letter -> ").lower() if not test else "c"
     inputName = inputFileNames[letter]
     p.start()
     try:
@@ -30,43 +58,93 @@ def main_run():
     except IOError:
         print("!!! NO INPUT WITH THAT NAME IN INPUT FOLDER !!!")
         exit()
+    if verbose:
+        print("NUMBER OF PHOTOS: " + str(len(photos)))
     p.stop("INPUT ACQUIRED")
-    print("NUMBER OF PHOTOS: " + str(len(photos)))
+    print("\n")
 
-    # shuffling the photos
-    # restore_state = input("\nDo you want to load .rsbk file? [y/n] -> ")
-    # p.start()
-    # if (restore_state in ["y", "Y", "s", "S", "yes", "YES", "Yes"]):
-    #     try:
-    #         with open("output/.{}.rsbk".format(inputName), "rb") as rsbk:
-    #             random_state = pickle.load(rsbk)
-    #             random.setstate(random_state)
-    #     except IOError:
-    #         print("!!! NO .rsbk FILE FOUND !!!")
-    # random_state = random.getstate()
-    random.shuffle(photos)
-    p.stop("PHOTO SHUFFLED")
-    p.start()
-    slides = Algorithm.generateSlideList(photos)
-    del photos
-    p.stop("SLIDES CREATED")
-    print("\nGENERATING SLIDESHOW...")
-    p.start()
-    slideshow, score = Algorithm.generateSlideshow(slides, verbose=True)
-    del slides
-    p.stop("SLIDESHOW GENERATED")
-    print("\nFound solution with score {}.".format(score))
-    dump_allowed = input("Do you want to write the output? [y/n] -> ")
-    if (dump_allowed in ["y", "Y", "s", "S", "yes", "YES", "Yes"]):
-        # with open("output/.{}.rsbk".format(inputName), "wb") as rsbk:
-        #     pickle.dump(random_state, rsbk)
-        with open("output/{}_out_{}.txt".format(inputName, score), "w") as out:
-            out.write(str(len(slideshow)) + "\n")
-            for slide in slideshow:
-                out.write(str(slide) + "\n")
+    best_score = 0
+    while(True):
+        random.shuffle(photos)
+        p.stop("PHOTO SHUFFLED")
+        p.start()
+        slides = Algorithm.generateSlideList(photos)
+        slides.sort(key=lambda x: len(x.tags))
+        if verbose:
+            print("NUMBER OF SLIDES: " + str(len(slides)))
+        p.stop("SLIDES CREATED")
+        if verbose:
+            print("GENERATING SLIDESHOW...")
+        p.start()
+        slideshow, score = Algorithm.generateSlideshow(slides)
+        del slides
+        p.stop("SLIDESHOW GENERATED")
+        print("Found solution with score {}.".format(score))
+        dump_allowed = "n"
+        if not iterative:
+            text = "Do you want to dump the solution? [y/n] -> "
+            dump_allowed = input(text).lower() if not auto else "y"
+        elif (score > best_score):
+            if verbose:
+                print("NEW BEST SCORE!!!")
+            best_score = score
+            if auto:
+                dump_allowed = "y"
+            else:
+                text = "Do you want to dump the new high score? [y/n] -> "
+                dump_allowed = input(text).lower()
+        if (dump_allowed in ["y", "s", "yes"]):
+            with open("{}/{}_out_{}.txt".format(folder, inputName, score), "w") as out:
+                Algorithm.generateOutputFile(out, slideshow)
+        if verbose:
+            print("\n")
+        if not iterative:
+            break
+
     tp.stop("COMPLETED")
-    input("\nPress ENTER to exit...")
+    if verbose:
+        input("\nPress ENTER to exit...")
 
+
+def print_help():
+    print("improve\trun a script to improve a solution")
+    print("help\tshow this message")
+    print("test\ttest the process on file C")
+    print("iter\trun as iterative process")
+    print("verb\tverbose output")
+    print("auto\tdump files automatically")
+
+
+def improve_run():
+    filePath = input("\nSolution file to improve -> ")
+    filePath.replace("\\", "/")
+    k = filePath.rfind("/")
+    folder = filePath[:k]
+    inputName = inputFileNames[filePath[k+1:k+2]]
+    h = filePath.rfind("_")
+    # declared_score = int(filePath[h+1:-4])
+    try:
+        with open("input/{}.txt".format(inputName), "r") as inputFile:
+            photos = Algorithm.generatePhotoList(inputFile)
+        with open(filePath, "r") as solutionFile:
+            slideshow = Algorithm.recreateSolution(solutionFile, photos)
+    except IOError:
+        print("!!! NO INPUT WITH THAT NAME IN INPUT FOLDER !!!")
+        exit()
+    old_score = Algorithm.calculateScore(slideshow)
+    # if (old_score != declared_score):
+    #     print("ERROR WHILE RECREATING SOLUTION")
+    #     return
+    slideshow = Algorithm.improveSolution(slideshow)
+    score = Algorithm.calculateScore(slideshow)
+    text = "Old: {}, New: {}, improved by {}".format(old_score, score, score - old_score)
+    print(text)
+    with open("{}/{}_out_{}.txt".format(folder, inputName, score), "w") as out:
+        Algorithm.generateOutputFile(out, slideshow)
+
+
+def analyze_run():
+    pass
 
 if __name__ == "__main__":
     main_run()

@@ -2,6 +2,7 @@
 import Algorithm
 import random
 import os
+from Slideshow import improve_run
 
 inputFileNames = {
     "a": "a_example",
@@ -13,10 +14,10 @@ inputFileNames = {
 
 def main_run():
     print("\nSTARTED...")
-    folder = input("\nOutput folder -> ")
+    folder = ("E:/out")
     if not os.path.exists(folder):
         os.makedirs(folder)
-    letter = input("\nType input file letter -> ")
+    letter = "c"
     inputName = inputFileNames[letter]
     try:
         with open("input/{}.txt".format(inputName), "r") as inputFile:
@@ -27,23 +28,19 @@ def main_run():
 
     best_score = 0
     while(True):
-        score = 0
         random.shuffle(photos)
         slides = Algorithm.generateSlideList(photos)
-        slideshow, score = Algorithm.generateSlideshow(slides, verbose=True)
-        del slides
+        slideshow, score = Algorithm.generateSlideshow(slides)
         if (score > best_score):
             best_score = score
-            print("\nFound solution with score {}.".format(score))
+            print("Found solution with score {}.".format(score))
             outputFileName = "{}/{}_out_{}.txt".format(folder, inputName, score)
             with open(outputFileName, "w") as out:
                 out.write(str(len(slideshow)) + "\n")
                 for slide in slideshow:
                     out.write(str(slide) + "\n")
 
-    print("BEST SCORE: {}".format(best_score))
-    input("\nPress ENTER to exit...")
-
 
 if __name__ == "__main__":
+    improve_run()
     main_run()

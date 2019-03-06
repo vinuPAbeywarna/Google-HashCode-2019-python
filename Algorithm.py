@@ -1,4 +1,4 @@
-from Classes import Photo, Slide  # Profiler
+from Classes import Photo, Slide, Profiler
 import Implementations
 import random
 import copy
@@ -18,8 +18,12 @@ def generateSlideList(photos):
     return Implementations.mostWithLeast_verticalOnBottom(photos)
 
 
-def generateSlideshow(slides, verbose):
-    return Implementations.followTheMostRewardingPath(slides, verbose)
+def generateSlideshow(slides):
+    return Implementations.greedyPathSearch(slides)
+
+
+def improveSolution(slideshow):
+    return Implementations.improveSolution_aBetterPlace(slideshow)
 
 
 def calculateScore(slideshow):
@@ -33,3 +37,15 @@ def generateOutputFile(file, slideshow):
     file.write(str(len(slideshow)) + "\n")
     for slide in slideshow:
         file.write(str(slide) + "\n")
+
+
+def recreateSolution(solutionFile, photos):
+    slideshow = []
+    next(solutionFile)
+    for line in solutionFile:
+        ids = line.split(" ")
+        ids = [int(x.strip()) for x in ids]
+        p1 = photos[ids[0]]
+        p2 = photos[ids[1]] if len(ids) == 2 else None
+        slideshow.append(Slide(p1, p2))
+    return slideshow

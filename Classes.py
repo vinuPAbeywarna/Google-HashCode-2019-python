@@ -58,3 +58,15 @@ class Slide:
         if diff_slide == 0:
             return 0
         return min(diff_self, intersection, diff_slide)
+
+
+class SlideWithPoints(Slide):
+    def __init__(self, slide):
+        self.photo1_n = slide.photo1_n
+        self.photo2_n = slide.photo2_n
+        self.tags = slide.tags
+        self.points = 0
+
+    def setPointsTo(self, slide):
+        self.points = self.pointsTo(slide)
+        return self.points
