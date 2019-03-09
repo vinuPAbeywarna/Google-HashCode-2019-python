@@ -70,3 +70,41 @@ class SlideWithPoints(Slide):
     def setPointsTo(self, slide):
         self.points = self.pointsTo(slide)
         return self.points
+
+
+class SlideLT(SlideWithPoints):
+    def __init__(self, LT, slide):
+        super().__init__(slide)
+        self.tags = [LT.getCode(x) for x in self.tags]
+        self.tags.sort()
+    
+    def pointsTo(self, slide):
+        inters = 0
+        for tag in self.tags:
+            if tag in slide.tags:
+                inters += 1
+        diff1 = len(self.tags) - inters
+        diff2 = len(slide.tags) - inters
+        return min(diff1, inters, diff2)
+
+
+class TagsLookupTable():
+    def __init__(self):
+        self.tags = []
+    
+    def getCode(self, tag):
+        code = None
+        if tag in self.tags:
+            code = self.tags.index(tag)
+        else:
+            self.tags.append(tag)
+            code = len(self.tags)
+        return code
+
+    def getTag(self, code):
+        tag = None
+        if code < len(self.tags):
+            tag = self.tags[code]
+        else:
+            print("No tag with code {}".format(code))
+        return tag

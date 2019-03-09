@@ -1,4 +1,4 @@
-from Classes import Photo, Slide, SlideWithPoints #Profiler
+from Classes import Photo, Slide, SlideLT, SlideWithPoints, TagsLookupTable #Profiler
 import random
 import copy
 
@@ -167,6 +167,15 @@ def greedyPathSearch(slides):
             slideshow.append(last)
     print("", end="\r")
     return slideshow, score
+
+
+# non optimal way of doing things, but maybe easier for C++ implementation
+def greedyPathSearchLT(slides):
+    LT = TagsLookupTable()
+    slidesLT = []
+    for slide in slides:
+        slidesLT.append(SlideLT(LT, slide))
+    return greedyPathSearch(slidesLT)
 
 
 '''
