@@ -13,14 +13,15 @@ inputFileNames = {
 
 def main_run():
     arguments = [x.lower() for x in sys.argv[1::]]
-
-
+    if len(arguments) == 0:
+        letter = "c"
+    else:
+        letter = arguments[0]
 
     print("\nSTARTED...")
     folder = ("E:/out")
     if not os.path.exists(folder):
         os.makedirs(folder)
-    letter = arguments[0]
     inputName = inputFileNames[letter]
     try:
         with open("input/{}.txt".format(inputName), "r") as inputFile:

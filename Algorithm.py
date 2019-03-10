@@ -56,8 +56,8 @@ def generateSlideshow(photos_toCopy):
     are matched with other verticals in places where they increase the overall score
     '''
     photos = copy.deepcopy(photos_toCopy)
-    verticals = sum(1 for x in photos if not x.isHorizontal)
-    horizontals = len(photos) - verticals
+    horizontals = sum(1 for x in photos if x.isHorizontal)
+    verticals = len(photos) - horizontals
     verticals /= 2
     elements = len(photos)
     score = 0
@@ -69,7 +69,7 @@ def generateSlideshow(photos_toCopy):
     else:
         verticals -= 1
     slideshow.append(Slide(last))
-    while (horizontals):
+    while (horizontals or verticals):
         printPercentage(photos_processed, elements)
         points = -1
         selected = None
