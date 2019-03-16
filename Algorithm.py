@@ -100,6 +100,7 @@ def generateSlideshow(photos_toCopy):
     print("       ", end="\r")
     return slideshow
 
+
 def improveSolution(slideshow):
     '''
     after building a solution with the greedy algorithm it is possible to
