@@ -30,19 +30,14 @@ def main_run():
         print("!!! {}.txt NOT FOUND IN INPUT FOLDER !!!".format(inputName))
         exit()
 
-    best_score = 0
-    while(True):
-        random.shuffle(photos)
-        slideshow = Algorithm.generateSlideshow(photos)
-        score = sum(x.points for x in slideshow[:-2])
-        if (score > best_score):
-            best_score = score
-            print("Found solution with score {}.".format(score))
-            outputFileName = "{}/{}_out_{}.txt".format(folder, inputName, score)
-            with open(outputFileName, "w") as out:
-                out.write(str(len(slideshow)) + "\n")
-                for slide in slideshow:
-                    out.write(str(slide) + "\n")
+    slideshow = Algorithm.generateSlideshow(photos)
+    score = sum(x.points for x in slideshow[:-2])
+    print("Found solution with score {}.".format(check_score))
+    outputFileName = "{}/{}_out_{}.txt".format(folder, inputName, score)
+    with open(outputFileName, "w") as out:
+        out.write(str(len(slideshow)) + "\n")
+        for slide in slideshow:
+            out.write(str(slide) + "\n")
 
 
 if __name__ == "__main__":

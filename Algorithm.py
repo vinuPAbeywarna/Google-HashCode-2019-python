@@ -54,8 +54,8 @@ def generateSlideshow(photos_toCopy):
     that decreases the less)
     '''
     photos = copy.deepcopy(photos_toCopy)
+    photos.sort(key=lambda x: len(x.tags))
     elements = len(photos)
-    score = 0
     slideshow = []
     last = None
     for photo in photos:
@@ -94,9 +94,72 @@ def generateSlideshow(photos_toCopy):
                     points += best_delta
                     last.addVertical(photos.pop(photos.index(match)))
                     photos_processed += 2
-            score += points
             slideshow[-1].points = points
             slideshow.append(last)
+    print("       ", end="\r")
+    return slideshow
+
+
+def generateSlideshow_prevident(photos_toCopy):
+    '''
+    greedy algorithm that works on a sorted by len(tags) photo list
+    it searches for the next best photo to add into the slideshow.
+    It searches the best horizontal and the best vertical. It also searches
+    for the next vertical to match the first one with the highest score. If
+    it then surpasses the horizontal one choses the verticals else the horizontal
+    '''
+    photos = copy.deepcopy(photos_toCopy)
+    photos.sort(key=lambda x: len(x.tags))
+    elements = len(photos)
+    slideshow = []
+    last = None
+    for photo in photos:
+        if photo.isHorizontal:
+            last = Slide(photos.pop(photos.index(photo)))
+            photos_processed = 1
+            break
+    if last is None:
+        last = Slide(photos.pop(0))
+        last.addVertical(photos.pop(0))
+        photos_processed = 2
+    slideshow.append(last)
+    while (photos):
+        printPercentage(photos_processed, elements)
+        points_v = -1
+        points_h = -1
+        selected_h = None
+        selected_v1 = None
+        selected_v2 = None
+        for p in photos:
+            new_points = last.pointsTo(p)
+            if (p.isHorizontal and new_points > points_h):
+                points_h = new_points
+                selected_h = p
+            if (not p.isHorizontal and new_points > points_v):
+                points_v = new_points
+                selected_v1 = p
+        if selected_v1:
+            proposed = Slide(selected_v1)
+            best_delta = -1000
+            for p in [x for x in photos if not x.isHorizontal]:
+                if (p is not selected_v1):
+                    new_points = proposed.previewPointsTo(p, slideshow[-1])
+                    delta = new_points - points_v
+                    if (delta > best_delta):
+                        best_delta = delta
+                        selected_v2 = p
+            if selected_v2:
+                points_v += best_delta
+        if (points_h > points_v):
+            last = Slide(photos.pop(photos.index(selected_h)))
+            slideshow[-1].points = points_h
+            photos_processed += 1
+        else:
+            last = Slide(photos.pop(photos.index(selected_v1)))
+            last.addVertical(photos.pop(photos.index(selected_v2)))
+            slideshow[-1].points = points_v
+            photos_processed += 2
+        slideshow.append(last)
     print("       ", end="\r")
     return slideshow
 
