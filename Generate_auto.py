@@ -32,7 +32,7 @@ def main_run():
 
     slideshow = Algorithm.generateSlideshow(photos)
     score = sum(x.points for x in slideshow[:-2])
-    print("Found solution with score {}.".format(check_score))
+    print("Found solution with score {}.".format(score))
     outputFileName = "{}/{}_out_{}.txt".format(folder, inputName, score)
     with open(outputFileName, "w") as out:
         out.write(str(len(slideshow)) + "\n")
