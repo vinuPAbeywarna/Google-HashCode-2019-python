@@ -161,7 +161,7 @@ def generateSlideshow_prevident(photos_toCopy):
             photos_processed += 2
         slideshow.append(last)
     print("       ", end="\r")
-    return slideshow
+    return (slideshow);
 
 
 def improveSolution(slideshow):
